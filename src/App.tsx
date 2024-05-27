@@ -2,6 +2,7 @@ import "./App.css";
 import jsPDF from "jspdf";
 import { PdfPreview } from "./pdfPreview";
 import { useRef } from "react";
+import { Button } from "flowbite-react";
 
 function App() {
   const reportTemplateRef = useRef(null);
@@ -18,7 +19,7 @@ function App() {
 
   return (
     <div>
-      <button onClick={handlePdfGeneration}>Gen PDF</button>
+      <Button onClick={handlePdfGeneration}>Gen PDF</Button>
       <div ref={reportTemplateRef}>
         <PdfPreview />
       </div>
