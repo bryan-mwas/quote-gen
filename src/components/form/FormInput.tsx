@@ -20,9 +20,9 @@ export default function FormInput<T extends FieldValues>(
 
   return (
     <div
-      className={`flex gap-1 items-baseline justify-between ${
-        props.className || ""
-      }`}
+      className={
+        props.className || "grid grid-cols-2 items-baseline justify-between"
+      }
     >
       <Label
         htmlFor={props.name}

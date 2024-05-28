@@ -11,7 +11,6 @@ const CompanySchema = z.object({
 const OrderItemSchema = z.object({
   description: z.string(),
   qty: z.number(),
-  amount: z.number(),
   price: z.number(),
 });
 

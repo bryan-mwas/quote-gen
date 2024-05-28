@@ -19,7 +19,9 @@ export default function FormTextArea<T extends FieldValues>(
   } = useController(props);
 
   return (
-    <div className={`flex gap-1 items-baseline ${props.className}`}>
+    <div
+      className={`grid grid-cols-2  items-baseline justify-between ${props.className}`}
+    >
       <Label
         htmlFor={props.name}
         color={error ? "failure" : undefined}
