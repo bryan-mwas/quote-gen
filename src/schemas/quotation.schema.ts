@@ -1,20 +1,27 @@
 import { z } from "zod";
 
-const Company = z.object({
+const CompanySchema = z.object({
   name: z.string(),
-  postAddress: z.string(),
+  email: z.string().optional(),
   phoneNumber: z.string(),
-  physicalAddress: z.string(),
+  address: z.string(),
+  taxID: z.string().optional(),
 });
 
-const OrderItem = z.object({
-  name: z.string(),
+const OrderItemSchema = z.object({
+  description: z.string(),
   qty: z.number(),
+  amount: z.number(),
   price: z.number(),
 });
 
-const Quotation = z.object({
-  from: Company,
-  to: Company,
-  items: z.array(OrderItem),
+export const QuotationSchema = z.object({
+  title: z.string(),
+  id: z.string(),
+  createdAt: z.date(),
+  from: CompanySchema,
+  to: CompanySchema,
+  items: z.array(OrderItemSchema),
 });
+
+export type Quotation = z.infer<typeof QuotationSchema>;
