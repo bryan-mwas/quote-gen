@@ -20,7 +20,10 @@ export default function FormTextArea<T extends FieldValues>(
 
   return (
     <div
-      className={`grid grid-cols-2  items-baseline justify-between ${props.className}`}
+      className={
+        props.className ||
+        "grid grid-cols-2 items-baseline justify-between mb-2"
+      }
     >
       <Label
         htmlFor={props.name}
@@ -35,7 +38,6 @@ export default function FormTextArea<T extends FieldValues>(
         color={error ? "failure" : undefined}
         helperText={error?.message || props.helperText}
         disabled={props.disabled}
-        className="mb-2"
       />
     </div>
   );

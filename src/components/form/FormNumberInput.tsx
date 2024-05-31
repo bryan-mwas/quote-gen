@@ -18,8 +18,13 @@ export function FormNumberInput<T extends FieldValues>(
   } = useController(props);
 
   return (
-    <div className={props.className}>
-      <div className="mb-2 block">
+    <div
+      className={
+        props.className ||
+        "grid grid-cols-2 items-baseline justify-between mb-2"
+      }
+    >
+      <div>
         <Label
           htmlFor={props.name}
           color={error ? "failure" : undefined}
@@ -36,7 +41,6 @@ export function FormNumberInput<T extends FieldValues>(
         color={error ? "failure" : undefined}
         helperText={error?.message || props.helperText}
         disabled={props.disabled}
-        className="mb-2"
       />
     </div>
   );

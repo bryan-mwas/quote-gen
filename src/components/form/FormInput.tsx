@@ -21,7 +21,8 @@ export default function FormInput<T extends FieldValues>(
   return (
     <div
       className={
-        props.className || "grid grid-cols-2 items-baseline justify-between"
+        props.className ||
+        "grid grid-cols-2 items-baseline justify-between mb-2"
       }
     >
       <Label
@@ -37,7 +38,6 @@ export default function FormInput<T extends FieldValues>(
         color={error ? "failure" : undefined}
         helperText={error?.message || props.helperText}
         disabled={props.disabled}
-        className="mb-2"
       />
     </div>
   );

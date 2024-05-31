@@ -3,12 +3,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Quotation, QuotationSchema } from "../schemas/quotation.schema";
 import FormInput from "../components/form/FormInput";
 import FormTextArea from "../components/form/FormTextArea";
-import { Button } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
+import { FormNumberInput } from "../components/form/FormNumberInput";
+import { FormDatePicker } from "../components/form/FormDatePicker";
+import { format } from "date-fns";
 
 export default function QuotationForm() {
-  const { control, handleSubmit } = useForm<Quotation>({
+  const { control, handleSubmit, watch } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
     defaultValues: {
+      title: "Quotation",
+      id: crypto.randomUUID(),
+      createdAt: format(new Date(), "yyyy-MM-dd"),
+      from: {},
+      to: {},
       items: [{ description: "", price: 0, qty: 0 }],
     },
   });
@@ -27,9 +35,11 @@ export default function QuotationForm() {
   return (
     <div className="flex flex-col gap-4 mx-4">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 sm:grid-cols-1">
-          <div></div>
-          <div></div>
+        <div className="grid sm:grid-cols-1">
+          <div className="bg-slate-50 p-4 my-2 rounded-md">
+            <FormInput control={control} name="id" readOnly label="Quote #" />
+            <FormDatePicker control={control} name="createdAt" label="Date" />
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-8">
@@ -71,54 +81,81 @@ export default function QuotationForm() {
           </section>
         </div>
 
-        {lineItems.map((field, index) => {
+        {lineItems.map((item, index) => {
           return (
-            <section
-              key={field.id}
-              className="grid sm:grid-cols-1 md:grid-cols-4 gap-3 items-baseline bg-slate-50 p-4 my-2 rounded-md"
-            >
-              <FormInput
-                name={`items.${index}.description` as const}
-                className="flex flex-col"
-                control={control}
-                label="Description"
-              />
-              <FormInput
-                name={`items.${index}.qty` as const}
-                className="flex flex-col"
-                control={control}
-                label="Quantity"
-              />
-              <FormInput
-                name={`items.${index}.price` as const}
-                className="flex flex-col"
-                control={control}
-                label="Price"
-              />
-              <div className="flex gap-1 items-center self-center">
-                <Button
-                  size={"xs"}
-                  onClick={() =>
-                    append({
-                      description: "",
-                      qty: 0,
-                      price: 0,
-                    })
-                  }
-                >
-                  Append
-                </Button>
-                <Button
-                  size={"xs"}
-                  color={"failure"}
-                  onClick={() => remove(index)}
-                >
-                  Remove
-                </Button>
+            <section key={item.id} className="bg-slate-50 p-4 my-2 rounded-md">
+              <p className="font-bold mb-3">Product {index + 1}</p>
+              <div className="grid sm:grid-cols-1 md:grid-cols-5 gap-3 items-baseline">
+                <FormInput
+                  name={`items.${index}.description` as const}
+                  className="flex flex-col"
+                  control={control}
+                  label="Description"
+                />
+                <FormNumberInput
+                  name={`items.${index}.qty` as const}
+                  className="flex flex-col"
+                  control={control}
+                  label="Quantity"
+                />
+                <FormNumberInput
+                  name={`items.${index}.price` as const}
+                  className="flex flex-col"
+                  control={control}
+                  label="Price"
+                />
+                <div>
+                  <Label>Amount</Label>
+                  <TextInput
+                    value={
+                      watch(`items.${index}.price`) *
+                      watch(`items.${index}.qty`)
+                    }
+                    className="font-bold"
+                    readOnly
+                  />
+                </div>
+                <div className="flex gap-1 items-center self-center">
+                  <Button
+                    size={"xs"}
+                    onClick={() =>
+                      append({
+                        description: "",
+                        qty: 0,
+                        price: 0,
+                      })
+                    }
+                  >
+                    Append
+                  </Button>
+                  {lineItems.length > 1 ? (
+                    <Button
+                      size={"xs"}
+                      color={"failure"}
+                      onClick={() => remove(index)}
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </section>
           );
         })}
+
+        <section id="totals" className=" float-end">
+          <div className="flex gap-3 justify-evenly text-xl font-bold p-3">
+            <p>Quote Total</p>
+            <p>
+              {watch(`items`).reduce((acc, curr) => {
+                acc += curr.price * curr.qty;
+                return acc;
+              }, 0)}
+            </p>
+          </div>
+        </section>
+
+        <Button type="submit">Submit</Button>
       </form>
     </div>
   );
