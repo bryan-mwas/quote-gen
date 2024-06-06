@@ -143,19 +143,27 @@ export default function QuotationForm() {
           );
         })}
 
-        <section id="totals" className=" float-end">
-          <div className="flex gap-3 justify-evenly text-xl font-bold p-3">
-            <p>Quote Total</p>
-            <p>
-              {watch(`items`).reduce((acc, curr) => {
-                acc += curr.price * curr.qty;
-                return acc;
-              }, 0)}
+        <section id="totals" className="float-end">
+          <div className="flex flex-col gap-2 text-xl font-bold p-3">
+            <p className="bg-slate-50 rounded-lg p-2">
+              <span className="text-slate-600">Quote Total: </span>
+              <span className="text-cyan-700">
+                {new Intl.NumberFormat("en-KE", {
+                  style: "currency",
+                  currency: "KES",
+                }).format(
+                  watch(`items`).reduce((acc, curr) => {
+                    acc += curr.price * curr.qty;
+                    return acc;
+                  }, 0)
+                )}
+              </span>
             </p>
+            <Button type="submit" pill>
+              Next
+            </Button>
           </div>
         </section>
-
-        <Button type="submit">Submit</Button>
       </form>
     </div>
   );
