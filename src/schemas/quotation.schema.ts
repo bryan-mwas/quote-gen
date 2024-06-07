@@ -26,6 +26,7 @@ export const QuotationSchema = z.object({
   title: z.string().trim().min(1, "Quote title is required"),
   id: z.string().trim().min(1, "Quote ID is required"),
   createdAt: z.string().date(),
+  companyLogo: z.string().trim().min(1, "Company Logo is required"),
   from: BillingCompanySchema,
   to: ClientCompanyShema,
   items: z.array(OrderItemSchema).min(1, "At least one line item is required"),

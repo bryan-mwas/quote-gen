@@ -6,21 +6,50 @@ import FormTextArea from "../components/form/FormTextArea";
 import { Button, Label, TextInput } from "flowbite-react";
 import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
-import { format } from "date-fns";
 import QuotationReport from "./QuotationReport";
+import jsPDF from "jspdf";
+import { useRef } from "react";
+import html2canvas from "html2canvas";
+import { ImagePicker } from "../components/form/ImagePicker";
+
+const tmpDefault = {
+  title: "Quotation",
+  id: "001",
+  createdAt: "2024-06-07",
+  from: {
+    name: "Twins",
+    email: "m@ma.com",
+    phoneNumber: "090087932",
+    address: "87632876",
+    taxID: "Tioudnlsd",
+  },
+  to: {
+    name: "Yops",
+    email: "yop@ma.com",
+    phoneNumber: "7523765",
+    address: "654(87321)",
+  },
+  items: [
+    {
+      description: "2 way 2 gang",
+      qty: 1,
+      price: 1000,
+    },
+    {
+      description: "2 Switch",
+      qty: 2,
+      price: 900,
+    },
+  ],
+};
 
 export default function QuotationForm() {
   const { control, handleSubmit, watch } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
-    defaultValues: {
-      title: "Quotation",
-      id: crypto.randomUUID(),
-      createdAt: format(new Date(), "yyyy-MM-dd"),
-      from: {},
-      to: {},
-      items: [{ description: "", price: 0, qty: 0 }],
-    },
+    defaultValues: { ...tmpDefault, companyLogo: undefined },
   });
+
+  const pdfPreviewRef = useRef(null);
 
   const {
     fields: lineItems,
@@ -31,16 +60,49 @@ export default function QuotationForm() {
     name: "items",
   });
 
-  const onSubmit = (data: Quotation) => console.log(data);
+  const generatePDF = (
+    companyName: string,
+    recipient: string,
+    quoteDate: string
+  ) => {
+    const doc = new jsPDF({ orientation: "p", format: "a4" });
+
+    html2canvas(pdfPreviewRef.current as unknown as HTMLElement, {
+      scale: 2,
+    }).then((canvas) => {
+      const dataURI = canvas.toDataURL("image/jpeg");
+      const pageWidth = doc.internal.pageSize.getWidth();
+      // const pageHeight = doc.internal.pageSize.getHeight();
+
+      // const widthRatio = pageWidth / canvas.width;
+      // const heightRatio = pageHeight / canvas.height;
+      // const ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
+
+      // const canvasWidth = canvas.width * ratio;
+
+      doc.addImage(dataURI, "JPEG", 0, 0, pageWidth, 0);
+
+      // doc.output("dataurlnewwindow");
+      doc.save(`Quote-${companyName}-${recipient}-${quoteDate}`);
+    });
+  };
+
+  const onSubmit = (data: Quotation) => {
+    // Once valid data is available only then can we generate the quote
+    console.log(data);
+    console.log("Generating PDF...");
+    generatePDF(data.from.name, data.to.name, data.createdAt);
+  };
 
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid sm:grid-cols-1">
       <div className="flex flex-col gap-4 mx-4">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid sm:grid-cols-1">
             <div className="bg-slate-50 p-4 my-2 rounded-md">
-              <FormInput control={control} name="id" readOnly label="Quote #" />
+              <FormInput control={control} name="id" label="Quote #" />
               <FormDatePicker control={control} name="createdAt" label="Date" />
+              <ImagePicker control={control} name="companyLogo" />
             </div>
           </div>
 
@@ -165,14 +227,14 @@ export default function QuotationForm() {
                 </span>
               </p>
               <Button type="submit" pill>
-                Next
+                Generate Quote
               </Button>
             </div>
           </section>
         </form>
       </div>
 
-      <div id="preview">
+      <div id="preview" ref={pdfPreviewRef}>
         <QuotationReport qouteData={watch()} />
       </div>
     </div>

@@ -9,60 +9,73 @@ function QuotationReport({ qouteData }: Props) {
     return <p>No data available</p>;
   }
   return (
-    <section className="w-[595pt] h-[842pt] p-4 shadow-2xl">
-      <p>
-        <span className="font-bold mx-2">Quote #</span>
-        {qouteData.id}
-      </p>
-      <p>
-        <span className="font-bold mx-2">Date</span>
-        {qouteData.createdAt}
-      </p>
+    <section className="p-10 shadow-2xl h-full">
+      <section className="flex justify-between">
+        <div>
+          <p>
+            <span className="font-bold mx-2">Quote #</span>
+            {qouteData.id}
+          </p>
+          <p>
+            <span className="font-bold mx-2">Date</span>
+            {qouteData.createdAt}
+          </p>
+        </div>
+        <img
+          alt="Company Logo"
+          className="w-[400px]"
+          src={qouteData.companyLogo}
+        />
+      </section>
       <section className="grid grid-cols-2 my-4">
         <div id="billingCompany">
           <p className="text-xl text-gray-400">From</p>
           <table>
-            <tr>
-              <th className="text-justify pr-4">Name</th>
-              <td>{qouteData.from.name}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">E-mail</th>
-              <td>{qouteData.from.email}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">Phone Number</th>
-              <td>{qouteData.from.phoneNumber}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">Address</th>
-              <td>{qouteData.from.address}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">Tax ID/PIN</th>
-              <td>{qouteData.from.taxID}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <th className="text-justify pr-4">Name</th>
+                <td>{qouteData.from.name}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">E-mail</th>
+                <td>{qouteData.from.email}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">Phone Number</th>
+                <td>{qouteData.from.phoneNumber}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">Address</th>
+                <td>{qouteData.from.address}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">Tax ID/PIN</th>
+                <td>{qouteData.from.taxID}</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div id="recipientCompany">
           <p className="text-xl text-gray-400">To</p>
           <table>
-            <tr>
-              <th className="text-justify pr-4">Name</th>
-              <td>{qouteData.to.name}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">E-mail</th>
-              <td>{qouteData.to.email}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">Phone Number</th>
-              <td>{qouteData.to.phoneNumber}</td>
-            </tr>
-            <tr>
-              <th className="text-justify pr-4">Address</th>
-              <td>{qouteData.to.address}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <th className="text-justify pr-4">Name</th>
+                <td>{qouteData.to.name}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">E-mail</th>
+                <td>{qouteData.to.email}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">Phone Number</th>
+                <td>{qouteData.to.phoneNumber}</td>
+              </tr>
+              <tr>
+                <th className="text-justify pr-4">Address</th>
+                <td>{qouteData.to.address}</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </section>
@@ -80,7 +93,10 @@ function QuotationReport({ qouteData }: Props) {
           <tbody>
             {qouteData.items.map((quote, idx) => {
               return (
-                <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <tr
+                  key={idx}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                >
                   <td className="p-2">{idx + 1}</td>
                   <td className="p-2">{quote.description}</td>
                   <td className="p-2">{quote.qty}</td>
@@ -97,8 +113,8 @@ function QuotationReport({ qouteData }: Props) {
           </tbody>
         </table>
       </section>
-      <section className="w-1/4 float-end my-4">
-        <div className="flex justify-between">
+      <section className="float-end my-4">
+        <div className="flex justify-between gap-2">
           <p className="font-bold">Quote Total</p>
           <p>
             {new Intl.NumberFormat("en-KE", {
