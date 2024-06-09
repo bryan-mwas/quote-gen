@@ -11,12 +11,26 @@ import jsPDF from "jspdf";
 import { useRef } from "react";
 import html2canvas from "html2canvas";
 import { ImagePicker } from "../components/form/ImagePicker";
-import { SAMPLE_DATA } from "../schemas/sample-data";
+// import { SAMPLE_DATA } from "../schemas/sample-data";
+import { format } from "date-fns";
 
 export default function QuotationForm() {
   const { control, handleSubmit, watch } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
-    defaultValues: SAMPLE_DATA,
+    defaultValues: {
+      companyLogo: undefined,
+      createdAt: format(new Date(), "yyyy-MM-dd"),
+      from: {
+        name: "Twins Electrical Enterprises",
+        phoneNumber: "0721815392",
+        address: "Ambala Rd, Mung'aria",
+        taxID: "",
+      },
+      to: {},
+      id: "",
+      items: [{ description: "", price: 0, qty: 0 }],
+      title: "Quote",
+    },
   });
 
   const pdfPreviewRef = useRef(null);
@@ -35,10 +49,12 @@ export default function QuotationForm() {
     recipient: string,
     quoteDate: string
   ) => {
-    const doc = new jsPDF({ orientation: "p", format: "a4" });
+    const doc = new jsPDF({ orientation: "p", format: "a4", unit: "pt" });
+    const a = pdfPreviewRef.current as unknown as HTMLElement;
+    a.classList.remove("hidden");
 
-    html2canvas(pdfPreviewRef.current as unknown as HTMLElement, {
-      scale: 2,
+    html2canvas(a, {
+      scale: 2.5,
     }).then((canvas) => {
       const dataURI = canvas.toDataURL("image/jpeg");
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -59,7 +75,6 @@ export default function QuotationForm() {
 
   const onSubmit = (data: Quotation) => {
     // Once valid data is available only then can we generate the quote
-    console.log(data);
     console.log("Generating PDF...");
     generatePDF(data.from.name, data.to.name, data.createdAt);
   };
@@ -72,7 +87,7 @@ export default function QuotationForm() {
       <div className="flex flex-col gap-4 mx-4">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid sm:grid-cols-1">
-            <div className="bg-slate-50 p-4 my-2 rounded-md">
+            <div className="bg-slate-50 p-4 rounded-md">
               <FormInput control={control} name="id" label="Quote #" />
               <FormDatePicker control={control} name="createdAt" label="Date" />
               <ImagePicker control={control} name="companyLogo" />
@@ -207,7 +222,7 @@ export default function QuotationForm() {
         </form>
       </div>
 
-      <div id="preview" ref={pdfPreviewRef}>
+      <div id="preview" ref={pdfPreviewRef} className="hidden">
         <QuotationReport qouteData={watch()} />
       </div>
     </div>
