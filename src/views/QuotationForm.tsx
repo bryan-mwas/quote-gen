@@ -11,42 +11,12 @@ import jsPDF from "jspdf";
 import { useRef } from "react";
 import html2canvas from "html2canvas";
 import { ImagePicker } from "../components/form/ImagePicker";
-
-const tmpDefault = {
-  title: "Quotation",
-  id: "001",
-  createdAt: "2024-06-07",
-  from: {
-    name: "Twins",
-    email: "m@ma.com",
-    phoneNumber: "090087932",
-    address: "87632876",
-    taxID: "Tioudnlsd",
-  },
-  to: {
-    name: "Yops",
-    email: "yop@ma.com",
-    phoneNumber: "7523765",
-    address: "654(87321)",
-  },
-  items: [
-    {
-      description: "2 way 2 gang",
-      qty: 1,
-      price: 1000,
-    },
-    {
-      description: "2 Switch",
-      qty: 2,
-      price: 900,
-    },
-  ],
-};
+import { SAMPLE_DATA } from "../schemas/sample-data";
 
 export default function QuotationForm() {
   const { control, handleSubmit, watch } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
-    defaultValues: { ...tmpDefault, companyLogo: undefined },
+    defaultValues: SAMPLE_DATA,
   });
 
   const pdfPreviewRef = useRef(null);
@@ -95,7 +65,10 @@ export default function QuotationForm() {
   };
 
   return (
-    <div className="grid sm:grid-cols-1">
+    <div className="grid sm:grid-cols-1 p-4">
+      <h1 className="mx-4 text-4xl font-extrabold text-center">
+        Quote Generator Tool
+      </h1>
       <div className="flex flex-col gap-4 mx-4">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid sm:grid-cols-1">

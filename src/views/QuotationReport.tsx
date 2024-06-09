@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { Quotation } from "../schemas/quotation.schema";
 
 interface Props {
@@ -9,27 +10,33 @@ function QuotationReport({ qouteData }: Props) {
     return <p>No data available</p>;
   }
   return (
-    <section className="p-10 shadow-2xl h-full">
-      <section className="flex justify-between">
+    <section className="p-10 shadow-2xl w-[794px] h-full">
+      <p className="text-center font-bold">{`${qouteData.from.name} Quote`}</p>
+      <section className="flex justify-between items-center">
         <div>
           <p>
-            <span className="font-bold mx-2">Quote #</span>
+            <span className="font-bold">Quote # </span>
             {qouteData.id}
           </p>
           <p>
-            <span className="font-bold mx-2">Date</span>
-            {qouteData.createdAt}
+            <span className="font-bold">Date </span>
+            <span className="underline">
+              {format(qouteData.createdAt, "do MMMM yyyy")}
+            </span>
           </p>
         </div>
         <img
           alt="Company Logo"
-          className="w-[400px]"
+          className="max-w-[208px] max-h-[160px] overflow-clip"
           src={qouteData.companyLogo}
+          style={{
+            overflowClipMargin: "content-box",
+          }}
         />
       </section>
-      <section className="grid grid-cols-2 my-4">
+      <section className="grid grid-cols-2 my-4 text-sm">
         <div id="billingCompany">
-          <p className="text-xl text-gray-400">From</p>
+          <p className="text-xl text-gray-400 font-semibold">From</p>
           <table>
             <tbody>
               <tr>
@@ -55,8 +62,8 @@ function QuotationReport({ qouteData }: Props) {
             </tbody>
           </table>
         </div>
-        <div id="recipientCompany">
-          <p className="text-xl text-gray-400">To</p>
+        <div id="recipientCompany" className="justify-self-center">
+          <p className="text-xl text-gray-400 font-semibold">To</p>
           <table>
             <tbody>
               <tr>
@@ -112,6 +119,7 @@ function QuotationReport({ qouteData }: Props) {
             })}
           </tbody>
         </table>
+        <p className="text-sm text-center my-3">Prices inclusive of VAT 16%</p>
       </section>
       <section className="float-end my-4">
         <div className="flex justify-between gap-2">
