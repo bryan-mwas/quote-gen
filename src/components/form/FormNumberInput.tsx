@@ -4,13 +4,11 @@ import {
   UseControllerProps,
 } from "react-hook-form";
 import { Label, TextInput, TextInputProps } from "flowbite-react";
+import { AppHTMLInputParams } from "./FormInput";
+import { gridLayoutFormInput } from "../../constants";
 
-class Params {
-  placeholderText?: string;
-  label?: string;
-}
 export function FormNumberInput<T extends FieldValues>(
-  props: UseControllerProps<T> & TextInputProps & Params
+  props: UseControllerProps<T> & TextInputProps & AppHTMLInputParams
 ) {
   const {
     field,
@@ -18,13 +16,8 @@ export function FormNumberInput<T extends FieldValues>(
   } = useController(props);
 
   return (
-    <div
-      className={
-        props.className ||
-        "grid grid-cols-2 items-baseline justify-between mb-2"
-      }
-    >
-      <div>
+    <div className={gridLayoutFormInput({ gridLayout: props.gridFormat })}>
+      <div className="mb-2 block">
         <Label
           htmlFor={props.name}
           color={error ? "failure" : undefined}

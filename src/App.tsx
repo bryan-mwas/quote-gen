@@ -1,6 +1,6 @@
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "./config/firebase";
-import { doc, getDoc, collection } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import QuotationForm from "./views/QuotationForm";
 import Login from "./components/Login";
@@ -13,9 +13,10 @@ function App() {
   useEffect(() => {
     const checkUserData = async () => {
       if (user) {
-        const userDocRef = doc(collection(db, "users"), user.uid);
-        const userDoc = await getDoc(userDocRef);
-        setHasUserData(userDoc.exists());
+        const q = query(collection(db, "users"), where("uid", "==", user.uid));
+        const userDoc = await getDocs(q);
+        console.log(userDoc.docs[0]?.data());
+        setHasUserData(userDoc.docs[0]?.exists());
       }
     };
 

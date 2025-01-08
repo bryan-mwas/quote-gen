@@ -4,14 +4,11 @@ import {
   UseControllerProps,
 } from "react-hook-form";
 import { Label, Textarea, TextareaProps } from "flowbite-react";
-
-interface Params {
-  placeholderText?: string;
-  label?: string;
-}
+import { AppHTMLInputParams } from "./FormInput";
+import { gridLayoutFormInput } from "../../constants";
 
 export default function FormTextArea<T extends FieldValues>(
-  props: UseControllerProps<T> & TextareaProps & Params
+  props: UseControllerProps<T> & TextareaProps & AppHTMLInputParams
 ) {
   const {
     field,
@@ -19,17 +16,14 @@ export default function FormTextArea<T extends FieldValues>(
   } = useController(props);
 
   return (
-    <div
-      className={
-        props.className ||
-        "grid grid-cols-2 items-baseline justify-between mb-2"
-      }
-    >
-      <Label
-        htmlFor={props.name}
-        color={error ? "failure" : undefined}
-        value={props.label}
-      />
+    <div className={gridLayoutFormInput({ gridLayout: props.gridFormat })}>
+      <div className="mb-2 block">
+        <Label
+          htmlFor={props.name}
+          color={error ? "failure" : undefined}
+          value={props.label}
+        />
+      </div>
       <Textarea
         id={props.name}
         {...field}
