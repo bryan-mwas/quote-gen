@@ -5,7 +5,7 @@ import { BillingCompany } from "../schemas/quotation.schema";
 import { Button } from "flowbite-react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebase";
-import { addDoc, collection } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 function CompanyForm() {
   const [user] = useAuthState(auth);
@@ -14,9 +14,8 @@ function CompanyForm() {
 
   const writeToFirestore = async (companyData: BillingCompany) => {
     try {
-      await addDoc(collection(db, "users"), {
+      await setDoc(doc(db, "user-profiles", user.uid), {
         companyInfo: companyData,
-        uid: user.uid,
       });
       alert("Success.");
     } catch (error) {
