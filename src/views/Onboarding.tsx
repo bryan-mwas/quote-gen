@@ -31,11 +31,19 @@ function CompanyForm() {
       className="flex max-w-md flex-col gap-2"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormInput name={"name"} control={control} label="Name" />
-      <FormInput name={"email"} control={control} label="E-mail" />
-      <FormInput name={"phoneNumber"} control={control} label="Phone Number" />
-      <FormTextArea name={"address"} control={control} label="Address" />
-      <FormInput name={"taxID"} control={control} label="Tax ID/PIN" />
+      <FormInput name={"name"} control={control} label="Company Name" />
+      <FormInput name={"email"} control={control} label="Company E-mail" />
+      <FormInput
+        name={"phoneNumber"}
+        control={control}
+        label="Company Phone Number"
+      />
+      <FormTextArea
+        name={"address"}
+        control={control}
+        label="Company Address"
+      />
+      <FormInput name={"taxID"} control={control} label=" Company Tax ID/PIN" />
       <Button type="submit">Next</Button>
     </form>
   );

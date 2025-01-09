@@ -1,4 +1,5 @@
 import { FileInput, FileInputProps, Label } from "flowbite-react";
+import { ChangeEvent, useState } from "react";
 import {
   FieldValues,
   UseControllerProps,
@@ -12,32 +13,35 @@ export function ImagePicker<T extends FieldValues>(
     field,
     fieldState: { error },
   } = useController(props);
-  return (
-    <div className="grid grid-cols-2 items-baseline justify-between">
-      <Label htmlFor="dropzone-file">Company Logo</Label>
-      <FileInput
-        id="dropzone-file"
-        accept="image/png, image/jpeg, image/svg"
-        {...field}
-        color={error ? "failure" : undefined}
-        onChange={(e) => {
-          const uploadedFile = e.target?.files?.[0];
-          if (uploadedFile) {
-            // Set the field value to URL of uploaded image
-            field.onChange(URL.createObjectURL(uploadedFile));
-          }
-        }}
-        value={undefined}
-        helperText={error?.message || props.helperText}
-      />
-    </div>
-  );
 
-  {
-    /* <Label
-        htmlFor="dropzone-file"
-        className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-      >
+  const [preview, setPreview] = useState<string>("");
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file) {
+      // setFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // setFileName("");
+      setPreview("");
+    }
+  };
+  return (
+    <Label
+      htmlFor="dropzone-file"
+      className={`flex h-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+        error ? "border-red-300" : "border-gray-300"
+      }  bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600`}
+    >
+      {preview ? (
+        <img src={preview} className="h-full" alt="Image preview" />
+      ) : (
         <div className="flex flex-col items-center justify-center pb-6 pt-5">
           <svg
             className="mb-4 h-8 w-8 text-gray-500 dark:text-gray-400"
@@ -55,21 +59,30 @@ export function ImagePicker<T extends FieldValues>(
             />
           </svg>
           <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-            <span className="font-semibold">Click to upload</span> or drag and
-            drop
+            <span className="font-semibold">Company Logo</span>
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             SVG, PNG, JPG (MAX. 800x400px)
           </p>
         </div>
-        <FileInput
+      )}
+      <FileInput
         id="dropzone-file"
         className="hidden"
         accept="image/png, image/jpeg, image/svg"
         {...field}
         color={error ? "failure" : undefined}
+        onChange={(e) => {
+          const uploadedFile = e.target?.files?.[0];
+          if (uploadedFile) {
+            field.onChange(URL.createObjectURL(uploadedFile));
+            handleFileChange(e);
+            // Set the field value to URL of uploaded image
+          }
+        }}
+        value={undefined}
         helperText={error?.message || props.helperText}
       />
-      </Label> */
-  }
+    </Label>
+  );
 }

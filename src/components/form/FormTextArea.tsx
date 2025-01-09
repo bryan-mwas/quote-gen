@@ -60,9 +60,13 @@ export function GridFormTextArea<T extends FieldValues>(
         {...props}
         placeholder={props.placeholderText}
         color={error ? "failure" : undefined}
-        helperText={error?.message || props.helperText}
         disabled={props.disabled}
       />
+      {(error?.message || props.helperText) && (
+        <small className="text-red-500 col-span-12 text-end font-semibold">
+          {error?.message || props.helperText}
+        </small>
+      )}
     </div>
   );
 }

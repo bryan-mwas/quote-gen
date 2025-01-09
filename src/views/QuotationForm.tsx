@@ -15,6 +15,7 @@ import { ImagePicker } from "../components/form/ImagePicker";
 import { format } from "date-fns";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
+import ImageUpload from "../components/form/ImageUploader";
 
 export default function QuotationForm() {
   const billingCompanyInfo = useAppStore.use.billingCompanyInfo?.();
@@ -86,6 +87,7 @@ export default function QuotationForm() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid sm:grid-cols-1">
             <div className="bg-slate-50 rounded-md">
+              <ImageUpload />
               <GridFormInput control={control} name="id" label="Quote #" />
               <FormDatePicker control={control} name="createdAt" label="Date" />
               <ImagePicker control={control} name="companyLogo" />
