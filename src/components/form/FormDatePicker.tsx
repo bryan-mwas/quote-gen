@@ -18,10 +18,10 @@ export function FormDatePicker<T extends FieldValues>(
           <div
             className={
               props.className ||
-              "grid grid-cols-2 items-baseline justify-between mb-2"
+              "grid grid-cols-12 items-center justify-between mb-2"
             }
           >
-            <div className="">
+            <div className="col-span-3">
               <Label
                 htmlFor={props.name}
                 color={fieldState.error ? "failure" : undefined}
@@ -31,6 +31,7 @@ export function FormDatePicker<T extends FieldValues>(
             <Datepicker
               {...props}
               {...field}
+              className="col-span-9"
               color={fieldState.error ? "failure" : undefined}
               onSelectedDateChanged={(date) => {
                 field.onChange(format(date, "yyyy-MM-dd"));

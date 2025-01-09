@@ -5,10 +5,13 @@ import { useEffect, useState } from "react";
 import QuotationForm from "./views/QuotationForm";
 import Login from "./components/Login";
 import Onboarding from "./views/Onboarding";
+import { BillingCompany } from "./schemas/quotation.schema";
+import { useAppStore } from "./config/store";
 
 function App() {
   const [user, loading] = useAuthState(auth);
   const [hasUserData, setHasUserData] = useState<boolean | null>(null);
+  const setBillingCompanyInfo = useAppStore.use.setBillingCompanyInfo();
 
   useEffect(() => {
     const checkUserData = async () => {
@@ -16,11 +19,13 @@ function App() {
         const userDocRef = doc(collection(db, "user-profiles"), user.uid);
         const userDoc = await getDoc(userDocRef);
         setHasUserData(userDoc.exists());
+        const companyData = userDoc.data()?.["companyInfo"] as BillingCompany;
+        setBillingCompanyInfo(companyData);
       }
     };
 
     checkUserData();
-  }, [user]);
+  }, [setBillingCompanyInfo, user]);
 
   if (loading) {
     return (
