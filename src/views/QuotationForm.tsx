@@ -3,19 +3,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Quotation, QuotationSchema } from "../schemas/quotation.schema";
 import FormInput, { GridFormInput } from "../components/form/FormInput";
 import { GridFormTextArea } from "../components/form/FormTextArea";
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button, Card, Label, TextInput } from "flowbite-react";
 import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
 import QuotationReport from "./QuotationReport";
 import jsPDF from "jspdf";
 import { useRef } from "react";
 import html2canvas from "html2canvas";
-import { ImagePicker } from "../components/form/ImagePicker";
 // import { SAMPLE_DATA } from "../schemas/sample-data";
 import { format } from "date-fns";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
-import ImageUpload from "../components/form/ImageUploader";
 
 export default function QuotationForm() {
   const billingCompanyInfo = useAppStore.use.billingCompanyInfo?.();
@@ -79,18 +77,24 @@ export default function QuotationForm() {
   };
 
   return (
-    <div className="grid sm:grid-cols-1 p-2">
-      <h1 className="mx-4 text-2xl font-extrabold text-center mb-8">
-        Quote Generator Tool
+    <Card className="grid sm:grid-cols-1 p-2">
+      <h1 className="mx-4 text-2xl font-extrabold text-center m4-8">
+        Invoice/Quote Generator
       </h1>
       <div className="mx-1">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-1 space-y-1"
+        >
+          <img
+            src={billingCompanyInfo?.logoURL}
+            alt="Company Logo"
+            className="object-cover h-24 w-32 rounded-lg mb-2 justify-self-center"
+          />
           <div className="grid sm:grid-cols-1">
-            <div className="bg-slate-50 rounded-md">
-              <ImageUpload />
+            <div className="bg-slate-50 p-4 rounded-md">
               <GridFormInput control={control} name="id" label="Quote #" />
               <FormDatePicker control={control} name="createdAt" label="Date" />
-              <ImagePicker control={control} name="companyLogo" />
             </div>
           </div>
 
@@ -150,7 +154,7 @@ export default function QuotationForm() {
             return (
               <section
                 key={item.id}
-                className="bg-slate-100 my-2 rounded-md p-4"
+                className="bg-slate-50 my-2 rounded-md p-4"
               >
                 <p className="font-bold mb-3">Product {index + 1}</p>
                 <div className="grid sm:grid-cols-1 md:grid-cols-5 gap-3 items-baseline">
@@ -241,6 +245,6 @@ export default function QuotationForm() {
       <div id="preview" ref={pdfPreviewRef} className="hidden">
         <QuotationReport qouteData={watch()} />
       </div>
-    </div>
+    </Card>
   );
 }

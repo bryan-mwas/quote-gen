@@ -8,9 +8,10 @@ const ClientCompanyShema = z.object({
   taxID: z.string().optional(),
 });
 
-const BillingCompanySchema = z.object({
+export const BillingCompanySchema = z.object({
   name: z.string().trim().min(1, "Company name is required"),
   email: z.string().optional(),
+  logoURL: z.string().optional(),
   phoneNumber: z.string().trim().min(1, "Phone Number is required"),
   address: z.string().trim().min(1, "Address is required"),
   taxID: z.string().trim().min(1, "Tax ID is required"),

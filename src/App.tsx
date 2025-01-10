@@ -4,28 +4,53 @@ import { doc, getDoc, collection } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import QuotationForm from "./views/QuotationForm";
 import Login from "./components/Login";
-import Onboarding from "./views/Onboarding";
+import Onboarding from "./views/Onboarding/Onboarding";
 import { BillingCompany } from "./schemas/quotation.schema";
 import { useAppStore } from "./config/store";
+import { User } from "firebase/auth";
 
 function App() {
   const [user, loading] = useAuthState(auth);
+  const localCompanyInfo = useAppStore.use.billingCompanyInfo?.();
   const [hasUserData, setHasUserData] = useState<boolean | null>(null);
+  const [onboardingStep, setOnboardingStep] = useState<number>();
   const setBillingCompanyInfo = useAppStore.use.setBillingCompanyInfo();
+
+  const validateCompanyInfo = (company: BillingCompany) => {
+    return !!company.name;
+  };
+  const validateCompanyLogo = (company: BillingCompany) => {
+    return !!company.logoURL;
+  };
+
+  async function fetchAuthUserProfile(user: User) {
+    const userDocRef = doc(collection(db, "user-profiles"), user.uid);
+    const userDoc = await getDoc(userDocRef);
+    setHasUserData(userDoc.exists());
+    const companyData = userDoc.data()?.["companyInfo"] as BillingCompany;
+    setBillingCompanyInfo(companyData);
+  }
 
   useEffect(() => {
     const checkUserData = async () => {
-      if (user) {
-        const userDocRef = doc(collection(db, "user-profiles"), user.uid);
-        const userDoc = await getDoc(userDocRef);
-        setHasUserData(userDoc.exists());
-        const companyData = userDoc.data()?.["companyInfo"] as BillingCompany;
-        setBillingCompanyInfo(companyData);
+      if (localCompanyInfo) {
+        if (!validateCompanyInfo(localCompanyInfo)) {
+          setHasUserData(false);
+          setOnboardingStep(1);
+        } else if (!validateCompanyLogo(localCompanyInfo)) {
+          setHasUserData(false);
+          setOnboardingStep(2);
+        }
+      } else {
+        if (user) {
+          await fetchAuthUserProfile(user);
+        }
       }
     };
 
     checkUserData();
-  }, [setBillingCompanyInfo, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (
@@ -57,7 +82,14 @@ function App() {
             </div>
           </nav>
           <main className="container mx-auto px-4 py-8">
-            {hasUserData ? <QuotationForm /> : <Onboarding />}
+            {hasUserData ? (
+              <QuotationForm />
+            ) : (
+              <Onboarding
+                currentStep={onboardingStep || 1}
+                handleCompletion={() => fetchAuthUserProfile(user)}
+              />
+            )}
           </main>
         </>
       ) : (
