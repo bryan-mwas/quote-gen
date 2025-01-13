@@ -40,6 +40,8 @@ function App() {
         } else if (!validateCompanyLogo(localCompanyInfo)) {
           setHasUserData(false);
           setOnboardingStep(2);
+        } else {
+          setHasUserData(true);
         }
       } else {
         if (user) {

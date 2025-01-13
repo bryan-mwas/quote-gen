@@ -38,10 +38,7 @@ function CompanyForm(props: Props) {
     writeToFirestore(companyData);
   };
   return (
-    <form
-      className="flex max-w-md flex-col gap-2"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
       <FormInput name={"name"} control={control} label="Company Name" />
       <FormInput name={"email"} control={control} label="Company E-mail" />
       <FormInput
