@@ -35,3 +35,4 @@ export const QuotationSchema = z.object({
 
 export type Quotation = z.infer<typeof QuotationSchema>;
 export type BillingCompany = z.infer<typeof BillingCompanySchema>;
+export type ClientCompany = z.infer<typeof ClientCompanyShema>;

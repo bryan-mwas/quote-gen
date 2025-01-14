@@ -1,26 +1,51 @@
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Quotation, QuotationSchema } from "../schemas/quotation.schema";
+import {
+  ClientCompany,
+  Quotation,
+  QuotationSchema,
+} from "../schemas/quotation.schema";
 import FormInput, { GridFormInput } from "../components/form/FormInput";
 import { GridFormTextArea } from "../components/form/FormTextArea";
-import { Button, Card, Label, TextInput } from "flowbite-react";
+import { Button, Card, Label, Select, TextInput } from "flowbite-react";
 import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
 import QuotationReport from "./QuotationReport";
 import jsPDF from "jspdf";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 // import { SAMPLE_DATA } from "../schemas/sample-data";
 import { format } from "date-fns";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
+import { useUserProfile } from "../services/useUserProfile";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../config/firebase";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { User } from "firebase/auth";
+
+const updateUserClients = async (user: User, client: ClientCompany) => {
+  const authUserRef = doc(db, "user-profiles", user.uid);
+  try {
+    await updateDoc(authUserRef, {
+      clients: arrayUnion(client),
+    });
+    console.log(`${user.displayName} has added Client: ${client.name}`);
+  } catch (e) {
+    console.error("An error occured");
+  }
+};
 
 export default function QuotationForm() {
+  const [user] = useAuthState(auth);
+  const { userClients } = useUserProfile(user?.uid);
+  const [updateUserCompany, setUpdateUserCompany] = useState(false);
+
   const billingCompanyInfo = useAppStore.use.billingCompanyInfo?.();
-  const { control, handleSubmit, watch } = useForm<Quotation>({
+  const { control, handleSubmit, watch, setValue } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
     defaultValues: {
-      companyLogo: undefined,
+      companyLogo: billingCompanyInfo?.logoURL,
       createdAt: format(new Date(), "yyyy-MM-dd"),
       from: billingCompanyInfo || {},
       to: {},
@@ -70,21 +95,29 @@ export default function QuotationForm() {
     });
   };
 
-  const onSubmit = (data: Quotation) => {
+  const onSubmit = async (data: Quotation) => {
     // Once valid data is available only then can we generate the quote
     console.log("Generating PDF...");
+    if (user && updateUserCompany) await updateUserClients(user, data.to);
     generatePDF(data.from.name, data.to.name, data.createdAt);
   };
 
   return (
-    <Card className="grid sm:grid-cols-1 p-2">
+    <Card
+      className="grid sm:grid-cols-1"
+      theme={{
+        root: {
+          children: "p-4",
+        },
+      }}
+    >
       <h1 className="mx-4 text-2xl font-extrabold text-center m4-8">
         Invoice/Quote Generator
       </h1>
       <div className="mx-1">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 space-y-1"
+          className="grid grid-cols-1 space-y-4"
         >
           <img
             src={billingCompanyInfo?.logoURL}
@@ -98,7 +131,7 @@ export default function QuotationForm() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-8 my-4">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4 my-4">
             <section>
               <p className="text-2xl text-gray-400">From</p>
               <GridFormInput
@@ -117,7 +150,6 @@ export default function QuotationForm() {
                 label="Phone Number"
               />
               <GridFormTextArea
-                gridFormat
                 name={"from.address"}
                 control={control}
                 label="Address"
@@ -129,8 +161,35 @@ export default function QuotationForm() {
               />
             </section>
 
-            <section>
+            <section className="space-y-2">
               <p className="text-2xl text-gray-400">Bill To</p>
+              <div className="grid grid-cols-1">
+                <Select
+                  id="clients"
+                  className="flex-1 text-center"
+                  addon="Choose..."
+                  onChange={({ target: { value } }) => {
+                    const selectedValue = userClients?.find(
+                      (it) => it?.name === value
+                    );
+                    if (selectedValue) {
+                      setUpdateUserCompany(true);
+                      setValue("to", selectedValue);
+                    }
+                  }}
+                >
+                  <option id="-1">Select Company</option>
+                  {userClients?.map((it, idx) => (
+                    <option id={`${idx}`} value={it.name}>
+                      {it.name}
+                    </option>
+                  ))}
+                </Select>
+                <small className="text-gray-600 italic">
+                  If company is not in list kindly fill in the values below
+                </small>
+              </div>
+
               <GridFormInput name={"to.name"} control={control} label="Name" />
               <GridFormInput
                 name={"to.email"}
@@ -156,7 +215,7 @@ export default function QuotationForm() {
                 key={item.id}
                 className="bg-slate-50 my-2 rounded-md p-4"
               >
-                <p className="font-bold mb-3">Product {index + 1}</p>
+                <p className="font-bold mb-3">Line Item {index + 1}</p>
                 <div className="grid sm:grid-cols-1 md:grid-cols-5 gap-3 items-baseline">
                   <FormInput
                     name={`items.${index}.description` as const}

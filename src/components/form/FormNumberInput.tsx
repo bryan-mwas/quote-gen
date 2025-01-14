@@ -5,7 +5,6 @@ import {
 } from "react-hook-form";
 import { Label, TextInput, TextInputProps } from "flowbite-react";
 import { AppHTMLInputParams } from "./FormInput";
-import { gridLayoutFormInput } from "../../constants";
 
 export function FormNumberInput<T extends FieldValues>(
   props: UseControllerProps<T> & TextInputProps & AppHTMLInputParams
@@ -16,7 +15,7 @@ export function FormNumberInput<T extends FieldValues>(
   } = useController(props);
 
   return (
-    <div className={gridLayoutFormInput({ gridLayout: props.gridFormat })}>
+    <div>
       <div className="mb-2 block">
         <Label
           htmlFor={props.name}

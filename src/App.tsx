@@ -8,6 +8,7 @@ import Onboarding from "./views/Onboarding/Onboarding";
 import { BillingCompany } from "./schemas/quotation.schema";
 import { useAppStore } from "./config/store";
 import { User } from "firebase/auth";
+import { AuthUserProfile } from "./dtos/user-profile.dto";
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -27,8 +28,8 @@ function App() {
     const userDocRef = doc(collection(db, "user-profiles"), user.uid);
     const userDoc = await getDoc(userDocRef);
     setHasUserData(userDoc.exists());
-    const companyData = userDoc.data()?.["companyInfo"] as BillingCompany;
-    setBillingCompanyInfo(companyData);
+    const companyData = userDoc.data() as AuthUserProfile;
+    setBillingCompanyInfo(companyData.companyInfo);
   }
 
   useEffect(() => {
