@@ -22,6 +22,7 @@ const OrderItemSchema = z.object({
   qty: z.number().min(1, "Quantity cannot be 0"),
   price: z.number().min(1, "Price cannot be 0"),
 });
+export type OrderItem = z.infer<typeof OrderItemSchema>;
 
 export const QuotationSchema = z.object({
   title: z.string().trim().min(1, "Quote title is required"),

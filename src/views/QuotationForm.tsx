@@ -11,11 +11,9 @@ import { Button, Card, Label, Select, TextInput } from "flowbite-react";
 import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
 import QuotationReport from "./QuotationReport";
-import jsPDF from "jspdf";
 import { useRef, useState } from "react";
-import html2canvas from "html2canvas";
-// import { SAMPLE_DATA } from "../schemas/sample-data";
-import { format } from "date-fns";
+import { SAMPLE_DATA } from "../schemas/sample-data";
+// import { format } from "date-fns";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
 import { useUserProfile } from "../services/useUserProfile";
@@ -23,6 +21,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebase";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { User } from "firebase/auth";
+import { generateInvoicePDF } from "../templates/generate-pdf";
 
 const updateUserClients = async (user: User, client: ClientCompany) => {
   const authUserRef = doc(db, "user-profiles", user.uid);
@@ -39,20 +38,24 @@ const updateUserClients = async (user: User, client: ClientCompany) => {
 export default function QuotationForm() {
   const [user] = useAuthState(auth);
   const { userClients } = useUserProfile(user?.uid);
-  const [updateUserCompany, setUpdateUserCompany] = useState(false);
+  const [updateUserCompany, setUpdateUserCompany] = useState(true);
 
   const billingCompanyInfo = useAppStore.use.billingCompanyInfo?.();
   const { control, handleSubmit, watch, setValue } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
     defaultValues: {
+      ...SAMPLE_DATA,
       companyLogo: billingCompanyInfo?.logoURL,
-      createdAt: format(new Date(), "yyyy-MM-dd"),
-      from: billingCompanyInfo || {},
-      to: {},
-      id: "",
-      items: [{ description: "", price: 0, qty: 0 }],
-      title: "Quote",
     },
+    // || {
+    //   companyLogo: billingCompanyInfo?.logoURL,
+    //   createdAt: format(new Date(), "yyyy-MM-dd"),
+    //   from: billingCompanyInfo || {},
+    //   to: {},
+    //   id: "",
+    //   items: [{ description: "", price: 0, qty: 0 }],
+    //   title: "Quote",
+    // },
   });
 
   const pdfPreviewRef = useRef(null);
@@ -66,40 +69,11 @@ export default function QuotationForm() {
     name: "items",
   });
 
-  const generatePDF = (
-    companyName: string,
-    recipient: string,
-    quoteDate: string
-  ) => {
-    const doc = new jsPDF({ orientation: "p", format: "a4", unit: "pt" });
-    const a = pdfPreviewRef.current as unknown as HTMLElement;
-    a.classList.remove("hidden");
-
-    html2canvas(a, {
-      scale: 2.5,
-    }).then((canvas) => {
-      const dataURI = canvas.toDataURL("image/jpeg");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      // const pageHeight = doc.internal.pageSize.getHeight();
-
-      // const widthRatio = pageWidth / canvas.width;
-      // const heightRatio = pageHeight / canvas.height;
-      // const ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
-
-      // const canvasWidth = canvas.width * ratio;
-
-      doc.addImage(dataURI, "JPEG", 0, 0, pageWidth, 0);
-
-      // doc.output("dataurlnewwindow");
-      doc.save(`Quote-${companyName}-${recipient}-${quoteDate}`);
-    });
-  };
-
   const onSubmit = async (data: Quotation) => {
     // Once valid data is available only then can we generate the quote
     console.log("Generating PDF...");
     if (user && updateUserCompany) await updateUserClients(user, data.to);
-    generatePDF(data.from.name, data.to.name, data.createdAt);
+    generateInvoicePDF(data);
   };
 
   return (
@@ -173,7 +147,7 @@ export default function QuotationForm() {
                       (it) => it?.name === value
                     );
                     if (selectedValue) {
-                      setUpdateUserCompany(true);
+                      setUpdateUserCompany(false);
                       setValue("to", selectedValue);
                     }
                   }}

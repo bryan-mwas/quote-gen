@@ -25,6 +25,7 @@ function App() {
   };
 
   async function fetchAuthUserProfile(user: User) {
+    console.log("fetchAuthUserProfile", user);
     const userDocRef = doc(collection(db, "user-profiles"), user.uid);
     const userDoc = await getDoc(userDocRef);
     setHasUserData(userDoc.exists());
@@ -46,6 +47,7 @@ function App() {
         }
       } else {
         if (user) {
+          console.log("user", user);
           await fetchAuthUserProfile(user);
         }
       }
