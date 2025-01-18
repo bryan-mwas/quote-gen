@@ -12,8 +12,6 @@ import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
 import QuotationReport from "./QuotationReport";
 import { useRef, useState } from "react";
-import { SAMPLE_DATA } from "../schemas/sample-data";
-// import { format } from "date-fns";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
 import { useUserProfile } from "../services/useUserProfile";
@@ -21,7 +19,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebase";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { generateInvoicePDF } from "../templates/generate-pdf";
+import { pdfMaker } from "../utills/pdf-generator";
+import { format } from "date-fns";
 
 const updateUserClients = async (user: User, client: ClientCompany) => {
   const authUserRef = doc(db, "user-profiles", user.uid);
@@ -44,18 +43,14 @@ export default function QuotationForm() {
   const { control, handleSubmit, watch, setValue } = useForm<Quotation>({
     resolver: zodResolver(QuotationSchema),
     defaultValues: {
-      ...SAMPLE_DATA,
       companyLogo: billingCompanyInfo?.logoURL,
+      createdAt: format(new Date(), "yyyy-MM-dd"),
+      from: billingCompanyInfo || {},
+      to: {},
+      id: "",
+      items: [{ description: "", price: 0, qty: 0 }],
+      title: "Quote",
     },
-    // || {
-    //   companyLogo: billingCompanyInfo?.logoURL,
-    //   createdAt: format(new Date(), "yyyy-MM-dd"),
-    //   from: billingCompanyInfo || {},
-    //   to: {},
-    //   id: "",
-    //   items: [{ description: "", price: 0, qty: 0 }],
-    //   title: "Quote",
-    // },
   });
 
   const pdfPreviewRef = useRef(null);
@@ -70,10 +65,9 @@ export default function QuotationForm() {
   });
 
   const onSubmit = async (data: Quotation) => {
-    // Once valid data is available only then can we generate the quote
     console.log("Generating PDF...");
     if (user && updateUserCompany) await updateUserClients(user, data.to);
-    generateInvoicePDF(data);
+    pdfMaker(data);
   };
 
   return (

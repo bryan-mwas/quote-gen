@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# files
+src/assets/fonts/make-vfs.ts
+deno.lock

@@ -89,7 +89,7 @@ function Onboarding(props: Props) {
         {currentStep === 3 && (
           <Button
             className="bg-blue-600"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.preventDefault();
               props.handleCompletion();
             }}
