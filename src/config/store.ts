@@ -4,12 +4,13 @@ import { BillingCompany } from "../schemas/quotation.schema";
 import createSelectors from "./selectors";
 
 type State = {
-  billingCompanyInfo?: BillingCompany;
+  billingCompanyInfo?: BillingCompany | null;
   setBillingCompanyInfo: (billingCompany?: BillingCompany) => void;
+  reset: () => void;
 };
 
 const initState = {
-  billingCompanyInfo: undefined,
+  billingCompanyInfo: null,
 };
 
 const appStore = create<State>()(
@@ -19,9 +20,13 @@ const appStore = create<State>()(
         ...initState,
         setBillingCompanyInfo: (companyInfo) =>
           set(() => ({ billingCompanyInfo: companyInfo })),
+        reset: () => {
+          set(initState);
+        },
       }),
       {
         name: "appStore",
+        version: 0.1,
       }
     )
   )

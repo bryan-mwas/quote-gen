@@ -9,6 +9,7 @@ import { BillingCompany } from "./schemas/quotation.schema";
 import { useAppStore } from "./config/store";
 import { User } from "firebase/auth";
 import { AuthUserProfile } from "./dtos/user-profile.dto";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -25,37 +26,48 @@ function App() {
   };
 
   async function fetchAuthUserProfile(user: User) {
-    console.log("fetchAuthUserProfile", user);
     const userDocRef = doc(collection(db, "user-profiles"), user.uid);
     const userDoc = await getDoc(userDocRef);
-    setHasUserData(userDoc.exists());
     const companyData = userDoc.data() as AuthUserProfile;
-    setBillingCompanyInfo(companyData.companyInfo);
+    if (companyData.companyInfo) {
+      if (!validateCompanyInfo(companyData.companyInfo)) {
+        setHasUserData(false);
+        setOnboardingStep(1);
+      } else if (!validateCompanyLogo(companyData.companyInfo)) {
+        setHasUserData(false);
+        setOnboardingStep(2);
+      } else {
+        setHasUserData(true);
+      }
+      setBillingCompanyInfo(companyData.companyInfo);
+    } else {
+      setHasUserData(false);
+    }
   }
 
   useEffect(() => {
     const checkUserData = async () => {
       if (localCompanyInfo) {
         if (!validateCompanyInfo(localCompanyInfo)) {
-          setHasUserData(false);
           setOnboardingStep(1);
-        } else if (!validateCompanyLogo(localCompanyInfo)) {
           setHasUserData(false);
+        } else if (!validateCompanyLogo(localCompanyInfo)) {
           setOnboardingStep(2);
+          setHasUserData(false);
         } else {
           setHasUserData(true);
         }
       } else {
         if (user) {
-          console.log("user", user);
           await fetchAuthUserProfile(user);
+        } else {
+          toast.error("Unexpected: User not found");
         }
       }
     };
-
-    checkUserData();
+    if (user) checkUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (
@@ -67,6 +79,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       {user ? (
         <>
           <nav className="bg-white shadow-md p-4">
@@ -78,6 +91,7 @@ function App() {
                 onClick={() => {
                   if (window.confirm("Are you sure you want to sign out?")) {
                     auth.signOut();
+                    useAppStore.use.reset();
                   }
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300"

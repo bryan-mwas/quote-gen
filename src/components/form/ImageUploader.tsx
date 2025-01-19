@@ -1,6 +1,8 @@
 import { useState, useRef, ChangeEvent } from "react";
 import { Upload, X } from "lucide-react";
 import { handleFileCloudStorageUpload } from "../../config/handleCloudStorageUpload";
+import { validateImageFileSize } from "../../utills/fileValidator";
+import toast from "react-hot-toast";
 
 interface Props {
   onImageUpload: (x: string) => void;
@@ -12,18 +14,24 @@ const ImageUpload = ({ onImageUpload }: Props) => {
   const [file, setFile] = useState<File>();
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setFile(file);
-      setFilename(file.name);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      handleRemoveImage();
+    try {
+      const { isValid, message } = await validateImageFileSize(file, 250);
+      if (file && isValid) {
+        setFile(file);
+        setFilename(file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setPreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error(message);
+        handleRemoveImage();
+      }
+    } catch (error) {
+      toast.error((error as Error).message);
     }
   };
 
@@ -39,7 +47,7 @@ const ImageUpload = ({ onImageUpload }: Props) => {
         file,
         onImageUpload,
         console.log,
-        console.log
+        toast.error
       );
     } else alert("Choose company logo to proceed");
   };
@@ -92,11 +100,11 @@ const ImageUpload = ({ onImageUpload }: Props) => {
               </h5>
               <p className="font-normal text-sm text-gray-400 md:px-6">
                 Choose photo size should be less than{" "}
-                <b className="text-gray-600">2mb</b>
+                <b className="text-gray-600">250KB</b>
               </p>
               <p className="font-normal text-sm text-gray-400 md:px-6">
-                and should be in{" "}
-                <b className="text-gray-600">JPG, PNG, or GIF</b> format.
+                and should be in <b className="text-gray-600">JPG or PNG</b>{" "}
+                format.
               </p>
             </>
           ) : (

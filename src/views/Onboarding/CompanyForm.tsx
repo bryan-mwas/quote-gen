@@ -10,6 +10,7 @@ import {
 } from "../../schemas/quotation.schema";
 import FormInput from "../../components/form/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
 interface Props {
   onSuccess: () => void;
@@ -27,9 +28,10 @@ function CompanyForm(props: Props) {
       await setDoc(doc(db, "user-profiles", user.uid), {
         companyInfo: companyData,
       });
-      alert("Success.");
+      toast.success("Company info saved.");
       props.onSuccess();
     } catch (error) {
+      toast.error(`WRITE to Firestore failed: ${error}`);
       console.error("WRITE to Firestore failed: ", error);
     }
   };

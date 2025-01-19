@@ -1,11 +1,12 @@
-import { Button, Card } from "flowbite-react";
+import { Card } from "flowbite-react";
 import CompanyForm from "./CompanyForm";
 import ImageUpload from "../../components/form/ImageUploader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Step } from "./Nav";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../../config/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 interface Props {
   currentStep: number;
@@ -16,16 +17,21 @@ function Onboarding(props: Props) {
   const [currentStep, setCurrentStep] = useState(props.currentStep);
   const [user] = useAuthState(auth);
 
+  useEffect(() => {
+    setCurrentStep(props.currentStep);
+  }, [props.currentStep]);
+
   async function updateCompanyProfileLogo(url: string) {
-    console.log("Update user company logo...");
     if (user) {
       const userDocRef = doc(db, "user-profiles", user.uid || "");
       try {
         await updateDoc(userDocRef, {
           "companyInfo.logoURL": url,
         });
-        handleNext();
+        // Trigger refresh of data and update zustand store.
+        props.handleCompletion();
       } catch (error) {
+        toast.error((error as Error).message);
         console.log("ERROR: ", error);
       }
     }
@@ -34,7 +40,6 @@ function Onboarding(props: Props) {
   const steps = [
     { number: 1, title: "Details" },
     { number: 2, title: "Logo" },
-    { number: 3, title: "Done" },
   ];
 
   const handleNext = () => {
@@ -85,17 +90,6 @@ function Onboarding(props: Props) {
         )}
         {currentStep === 2 && (
           <ImageUpload onImageUpload={updateCompanyProfileLogo} />
-        )}
-        {currentStep === 3 && (
-          <Button
-            className="bg-blue-600"
-            onClick={(e: React.MouseEvent) => {
-              e.preventDefault();
-              props.handleCompletion();
-            }}
-          >
-            Proceed
-          </Button>
         )}
       </div>
     </Card>
