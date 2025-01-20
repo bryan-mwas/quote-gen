@@ -46,8 +46,9 @@ export const pdfMaker = async (quotation: Quotation) => {
               { text: quotation.from.name, style: "companyName" },
               {
                 text: `
-                ${quotation.from.address}\n
                 ${quotation.from.phoneNumber}\n
+                ${quotation.from.email}\n
+                ${quotation.from.address}\n
                 KRA PIN: ${quotation.from.taxID}`,
                 style: "companyInfo",
               },
@@ -81,6 +82,10 @@ export const pdfMaker = async (quotation: Quotation) => {
               },
               {
                 text: `${quotation.to.name}\n`,
+                style: "billedTo",
+              },
+              {
+                text: `${quotation.to.email}\n`,
                 style: "billedTo",
               },
               {
