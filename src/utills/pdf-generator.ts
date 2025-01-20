@@ -85,6 +85,10 @@ export const pdfMaker = async (quotation: Quotation) => {
                 style: "billedTo",
               },
               {
+                text: `${quotation.to.phoneNumber}\n`,
+                style: "billedTo",
+              },
+              {
                 text: `${quotation.to.email}\n`,
                 style: "billedTo",
               },
