@@ -11,7 +11,7 @@ import { Button, Card, Label, Select, TextInput } from "flowbite-react";
 import { FormNumberInput } from "../components/form/FormNumberInput";
 import { FormDatePicker } from "../components/form/FormDatePicker";
 import QuotationReport from "./QuotationReport";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "../config/store";
 import { FaTrash, FaPlus } from "react-icons/fa6";
 import { useUserProfile } from "../services/useUserProfile";
@@ -53,6 +53,10 @@ export default function QuotationForm() {
     },
   });
 
+  useEffect(() => {
+    if (billingCompanyInfo) setValue("from", billingCompanyInfo);
+  }, [billingCompanyInfo, setValue]);
+
   const pdfPreviewRef = useRef(null);
 
   const {
@@ -65,7 +69,6 @@ export default function QuotationForm() {
   });
 
   const onSubmit = async (data: Quotation) => {
-    console.log("Generating PDF...");
     if (user && updateUserCompany) await updateUserClients(user, data.to);
     pdfMaker(data);
   };
@@ -79,8 +82,8 @@ export default function QuotationForm() {
         },
       }}
     >
-      <h1 className="mx-4 text-2xl font-extrabold text-center m4-8">
-        Invoice/Quote Generator
+      <h1 className="mx-4 text-2xl font-extrabold text-center mb-4">
+        Quote Generator
       </h1>
       <div className="mx-1">
         <form
@@ -90,7 +93,7 @@ export default function QuotationForm() {
           <img
             src={billingCompanyInfo?.logoURL}
             alt="Company Logo"
-            className="object-cover h-24 w-32 rounded-lg mb-2 justify-self-center"
+            className="object-cover h-32 w-32 rounded mb-2 justify-self-center"
           />
           <div className="grid sm:grid-cols-1">
             <div className="bg-slate-50 p-4 rounded-md">

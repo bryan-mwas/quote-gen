@@ -28,7 +28,7 @@ export const pdfMaker = async (quotation: Quotation) => {
     info: {
       author: "Quote Gen App",
       title: PDF_NAME,
-      subject: "Quotation/Invoice",
+      subject: "Quotation",
     },
     images: {
       companyLogo: { url: quotation.companyLogo },

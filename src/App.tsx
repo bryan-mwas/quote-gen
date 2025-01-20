@@ -14,6 +14,7 @@ import toast, { Toaster } from "react-hot-toast";
 function App() {
   const [user, loading] = useAuthState(auth);
   const localCompanyInfo = useAppStore.use.billingCompanyInfo?.();
+  const resetStore = useAppStore.use.reset();
   const [hasUserData, setHasUserData] = useState<boolean | null>(null);
   const [onboardingStep, setOnboardingStep] = useState<number>();
   const setBillingCompanyInfo = useAppStore.use.setBillingCompanyInfo();
@@ -90,8 +91,8 @@ function App() {
               <button
                 onClick={() => {
                   if (window.confirm("Are you sure you want to sign out?")) {
+                    resetStore();
                     auth.signOut();
-                    useAppStore.use.reset();
                   }
                 }}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300"
