@@ -16,6 +16,7 @@ function App() {
   const localCompanyInfo = useAppStore.use.billingCompanyInfo?.();
   const resetStore = useAppStore.use.reset();
   const [hasUserData, setHasUserData] = useState<boolean | null>(null);
+  const [isFetchingUserData, setFetchingUserData] = useState<boolean>(false);
   const [onboardingStep, setOnboardingStep] = useState<number>();
   const setBillingCompanyInfo = useAppStore.use.setBillingCompanyInfo();
 
@@ -26,51 +27,63 @@ function App() {
     return !!company.logoURL;
   };
 
+  const checkAuthUserProfileData = (company: BillingCompany) => {
+    if (!validateCompanyInfo(company)) {
+      return 1;
+    } else if (!validateCompanyLogo(company)) {
+      return 2;
+    } else {
+      return true;
+    }
+  };
+
   async function fetchAuthUserProfile(user: User) {
     const userDocRef = doc(collection(db, "user-profiles"), user.uid);
     const userDoc = await getDoc(userDocRef);
     const companyData = userDoc.data() as AuthUserProfile;
-    if (companyData.companyInfo) {
-      if (!validateCompanyInfo(companyData.companyInfo)) {
+    if (companyData && companyData.companyInfo) {
+      const validationResponse = checkAuthUserProfileData(
+        companyData.companyInfo
+      );
+      if (typeof validationResponse === "number") {
         setHasUserData(false);
-        setOnboardingStep(1);
-      } else if (!validateCompanyLogo(companyData.companyInfo)) {
-        setHasUserData(false);
-        setOnboardingStep(2);
+        setOnboardingStep(validationResponse);
       } else {
         setHasUserData(true);
+        setBillingCompanyInfo(companyData.companyInfo);
       }
-      setBillingCompanyInfo(companyData.companyInfo);
     } else {
       setHasUserData(false);
     }
   }
 
-  useEffect(() => {
-    const checkUserData = async () => {
-      if (localCompanyInfo) {
-        if (!validateCompanyInfo(localCompanyInfo)) {
-          setOnboardingStep(1);
-          setHasUserData(false);
-        } else if (!validateCompanyLogo(localCompanyInfo)) {
-          setOnboardingStep(2);
-          setHasUserData(false);
-        } else {
-          setHasUserData(true);
-        }
+  const checkUserData = async () => {
+    setFetchingUserData(true);
+    if (localCompanyInfo) {
+      const validationResponse = checkAuthUserProfileData(localCompanyInfo);
+      setFetchingUserData(false);
+      if (typeof validationResponse === "number") {
+        setHasUserData(false);
+        setOnboardingStep(validationResponse);
       } else {
-        if (user) {
-          await fetchAuthUserProfile(user);
-        } else {
-          toast.error("Unexpected: User not found");
-        }
+        setHasUserData(true);
       }
-    };
+    } else {
+      if (user) {
+        await fetchAuthUserProfile(user);
+        setFetchingUserData(false);
+      } else {
+        toast.error("Unexpected: User not found");
+      }
+    }
+  };
+
+  useEffect(() => {
     if (user) checkUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  if (loading) {
+  if (loading || isFetchingUserData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>

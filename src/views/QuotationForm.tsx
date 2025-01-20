@@ -40,18 +40,19 @@ export default function QuotationForm() {
   const [updateUserCompany, setUpdateUserCompany] = useState(true);
 
   const billingCompanyInfo = useAppStore.use.billingCompanyInfo?.();
-  const { control, handleSubmit, watch, setValue } = useForm<Quotation>({
-    resolver: zodResolver(QuotationSchema),
-    defaultValues: {
-      companyLogo: billingCompanyInfo?.logoURL,
-      createdAt: format(new Date(), "yyyy-MM-dd"),
-      from: billingCompanyInfo || {},
-      to: {},
-      id: "",
-      items: [{ description: "", price: 0, qty: 0 }],
-      title: "Quote",
-    },
-  });
+  const { control, handleSubmit, watch, setValue, formState } =
+    useForm<Quotation>({
+      resolver: zodResolver(QuotationSchema),
+      defaultValues: {
+        companyLogo: billingCompanyInfo?.logoURL,
+        createdAt: format(new Date(), "yyyy-MM-dd"),
+        from: billingCompanyInfo || {},
+        to: {},
+        id: "",
+        items: [{ description: "", price: 0, qty: 0 }],
+        title: "Quote",
+      },
+    });
 
   useEffect(() => {
     if (billingCompanyInfo) setValue("from", billingCompanyInfo);
@@ -264,7 +265,12 @@ export default function QuotationForm() {
                   )}
                 </span>
               </p>
-              <Button type="submit" pill>
+              <Button
+                type="submit"
+                pill
+                disabled={formState.isSubmitting || formState.isLoading}
+                isProcessing={formState.isSubmitting}
+              >
                 Generate Quote
               </Button>
             </div>
