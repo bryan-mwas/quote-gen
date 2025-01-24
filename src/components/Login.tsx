@@ -2,11 +2,15 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
 import { FaGoogle, FaUserNinja } from "react-icons/fa6";
 import { Button } from "flowbite-react";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const router = useRouter();
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      router.navigate({ to: "/" });
     } catch (error) {
       alert(error);
       console.error(error);
@@ -23,7 +27,13 @@ const Login = () => {
           <FaGoogle className="me-2 h-4 w-4" />
           <span className="font-bold">Sign in with Google</span>
         </Button>
-        <Button gradientDuoTone={"greenToBlue"} onClick={console.log}>
+        <Button
+          gradientDuoTone={"greenToBlue"}
+          onClick={() => {
+            navigate({ to: "/guest" });
+            router.invalidate();
+          }}
+        >
           <FaUserNinja className="me-2 h-4 w-4" />
           <span className="font-bold">Guest Mode</span>
         </Button>

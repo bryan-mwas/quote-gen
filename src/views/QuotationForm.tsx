@@ -21,6 +21,7 @@ import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { pdfMaker } from "../utills/pdf-generator";
 import { format } from "date-fns";
+import ImageUpload from "../components/form/ImageUploader";
 
 const updateUserClients = async (user: User, client: ClientCompany) => {
   const authUserRef = doc(db, "user-profiles", user.uid);
@@ -91,11 +92,17 @@ export default function QuotationForm() {
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 space-y-4"
         >
-          <img
-            src={billingCompanyInfo?.logoURL}
-            alt="Company Logo"
-            className="object-cover h-32 w-32 rounded mb-2 justify-self-center"
-          />
+          {billingCompanyInfo?.logoURL ? (
+            <img
+              src={billingCompanyInfo.logoURL}
+              alt="Company Logo"
+              className="object-cover h-32 w-32 rounded mb-2 justify-self-center"
+            />
+          ) : (
+            <ImageUpload
+              onGuestImageChange={(url) => setValue("companyLogo", url)}
+            />
+          )}
           <div className="grid sm:grid-cols-1">
             <div className="bg-slate-50 p-4 rounded-md">
               <GridFormInput control={control} name="id" label="Quote #" />

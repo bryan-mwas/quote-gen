@@ -5,10 +5,11 @@ import { validateImageFileSize } from "../../utills/fileValidator";
 import toast from "react-hot-toast";
 
 interface Props {
-  onImageUpload: (x: string) => void;
+  onImageUpload?: (x: string) => void;
+  onGuestImageChange?: (x: string) => void;
 }
 
-const ImageUpload = ({ onImageUpload }: Props) => {
+const ImageUpload = ({ onImageUpload, onGuestImageChange }: Props) => {
   const [preview, setPreview] = useState("");
   const [filename, setFilename] = useState("");
   const [file, setFile] = useState<File>();
@@ -23,7 +24,9 @@ const ImageUpload = ({ onImageUpload }: Props) => {
         setFilename(file.name);
         const reader = new FileReader();
         reader.onload = (e) => {
-          setPreview(e.target?.result as string);
+          const base64Img = e.target?.result as string;
+          setPreview(base64Img);
+          onGuestImageChange?.(base64Img);
         };
         reader.readAsDataURL(file);
       } else {
@@ -45,7 +48,7 @@ const ImageUpload = ({ onImageUpload }: Props) => {
     if (file) {
       handleFileCloudStorageUpload(
         file,
-        onImageUpload,
+        onImageUpload!,
         console.log,
         toast.error
       );
@@ -121,16 +124,18 @@ const ImageUpload = ({ onImageUpload }: Props) => {
           )}
         </div>
 
-        <div className="flex items-center justify-center">
-          <div className="w-full">
-            <button
-              onClick={handleUploadClick}
-              className="w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center mr-2 mb-2"
-            >
-              <span className="text-center ml-2">Upload</span>
-            </button>
+        {!onGuestImageChange && (
+          <div className="flex items-center justify-center">
+            <div className="w-full">
+              <button
+                onClick={handleUploadClick}
+                className="w-full text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-center mr-2 mb-2"
+              >
+                <span className="text-center ml-2">Upload</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
     // </section>

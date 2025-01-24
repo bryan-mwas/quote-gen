@@ -1,19 +1,25 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen.ts";
+import App from "./App.tsx";
 
-const router = createRouter({ routeTree: routeTree });
+export const APP_ROUTER = createRouter({
+  routeTree: routeTree,
+  context: {
+    authUser: undefined!,
+  },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router;
+    router: typeof APP_ROUTER;
   }
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App />
   </React.StrictMode>
 );
